@@ -3,3 +3,95 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+/* Base styles (apply to both) */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 200px;
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 15px 0;
+}
+
+.sidebar a {
+  text-decoration: none;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.content {
+  padding: 20px;
+}
+
+/* Light theme */
+body.light {
+  background: #f4f4f4;
+  color: #000;
+}
+
+body.light .sidebar {
+  background: #2c3e50;
+  color: white;
+}
+
+body.light .sidebar a {
+  color: white;
+}
+
+body.light .navbar {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Dark theme */
+body.dark {
+  background: #1e1e1e;
+  color: #f0f0f0;
+}
+
+body.dark .sidebar {
+  background: #111;
+  color: #ddd;
+}
+
+body.dark .sidebar a {
+  color: #ddd;
+}
+
+body.dark .navbar {
+  background: #222;
+  border-bottom: 1px solid #444;
+}

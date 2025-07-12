@@ -1,47 +1,39 @@
+import { useState } from "react";
+import { loginUser } from "../utils/api";
+import { useNavigate } from "react-router-dom"; // ⬅️ Import
+
 export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // ⬅️ Hook
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const res = await loginUser(form);
+    
+    if (res.token) {
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      setMessage("✅ Logged in successfully!");
+      navigate("/dashboard"); // ⬅️ Redirect
+    } else {
+      setMessage(res.message || res.error || "Login failed");
+    }
+  };
+
   return (
-    <div style={styles.wrapper}>
-      <form style={styles.form}>
-        <h2 style={styles.heading}>Login</h2>
-        <input style={styles.input} type="email" placeholder="Email" /><br /><br />
-        <input style={styles.input} type="password" placeholder="Password" /><br /><br />
-        <button style={styles.button}>Login</button>
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <input name="email" type="email" onChange={handleChange} placeholder="Email" required /><br />
+        <input name="password" type="password" onChange={handleChange} placeholder="Password" required /><br />
+        <button type="submit">Login</button>
       </form>
+      <p>{message}</p>
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    height: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f9f9f9",
-  },
-  form: {
-    padding: "30px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    width: "300px",
-  },
-  heading: {
-    marginBottom: "20px",
-    fontSize: "22px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "16px",
-  },
-  button: {
-    width: "100%",
-    padding: "10px",
-    fontSize: "16px",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-  }
-};
