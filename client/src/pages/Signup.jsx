@@ -51,7 +51,18 @@ export default function Signup() {
     <div className="signup-container">
       <div className="signup-card">
         <div className="signup-header">
-          <div className="signup-logo">IQ</div>
+          <div className="signup-logo">
+            <img
+              src="/images/InsightIQ(1).png"
+              alt="InsightIQ Logo"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+              }}
+            />
+          </div>
           <h2>Create Account</h2>
           <p>Join InsightIQ for advanced analytics</p>
         </div>
@@ -115,14 +126,17 @@ export default function Signup() {
         </form>
 
         {message && (
-          <div className={`message ${message.includes("✅") ? "success" : "error"}`}>
+          <div
+            className={`message ${
+              message.includes("✅") ? "success" : "error"
+            }`}
+          >
             {message}
           </div>
         )}
 
         <div className="signin-link">
-          Already have an account?{" "}
-          <Link to="/login">Sign in</Link>
+          Already have an account? <Link to="/login">Sign in</Link>
         </div>
       </div>
 

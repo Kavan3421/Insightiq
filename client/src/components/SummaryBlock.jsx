@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 
 export default function SummaryBlock() {
   const [summary, setSummary] = useState("");
   const [formatted, setFormatted] = useState(null);
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -51,7 +53,7 @@ export default function SummaryBlock() {
       .filter(
         (s) =>
           (s.toLowerCase().includes("recommend") ||
-            s.toLowerCase().includes("should")) &&
+          s.toLowerCase().includes("should")) &&
           !used.has(s)
       )
       .map((s) => {
@@ -65,44 +67,68 @@ export default function SummaryBlock() {
         style={{
           marginTop: "30px",
           marginBottom: "30px",
-          padding: "25px",
+          padding: isMobile ? "15px" : "25px",
           borderRadius: "12px",
           background: "linear-gradient(145deg, #ffffff, #f8fafc)",
           boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
         }}
       >
         <h3
-          style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "15px" }}
+          style={{ 
+            fontSize: isMobile ? "18px" : "20px", 
+            fontWeight: "bold", 
+            marginBottom: "15px" 
+          }}
         >
           🧠 AI Insight Summary
         </h3>
 
         {overview && (
-          <p style={{ fontSize: "16px", color: "#374151", lineHeight: 1.7 }}>
+          <p style={{ 
+            fontSize: isMobile ? "14px" : "16px", 
+            color: "#374151", 
+            lineHeight: 1.7 
+          }}>
             <strong>📊 Overview:</strong> {overview}
           </p>
         )}
 
         {sales && (
-          <p style={{ fontSize: "16px", color: "#10B981", lineHeight: 1.7 }}>
+          <p style={{ 
+            fontSize: isMobile ? "14px" : "16px", 
+            color: "#10B981", 
+            lineHeight: 1.7 
+          }}>
             <strong>💹 Sales Insight:</strong> {sales}
           </p>
         )}
 
         {marketing && (
-          <p style={{ fontSize: "16px", color: "#DC2626", lineHeight: 1.7 }}>
+          <p style={{ 
+            fontSize: isMobile ? "14px" : "16px", 
+            color: "#DC2626", 
+            lineHeight: 1.7 
+          }}>
             <strong>📉 Marketing Alert:</strong> {marketing}
           </p>
         )}
 
         {general && (
-          <p style={{ fontSize: "16px", color: "#F59E0B", lineHeight: 1.7 }}>
+          <p style={{ 
+            fontSize: isMobile ? "14px" : "16px", 
+            color: "#F59E0B", 
+            lineHeight: 1.7 
+          }}>
             <strong>⚖️ General Metrics:</strong> {general}
           </p>
         )}
 
         {recommendation && (
-          <p style={{ fontSize: "16px", color: "#2563EB", lineHeight: 1.7 }}>
+          <p style={{ 
+            fontSize: isMobile ? "14px" : "16px", 
+            color: "#2563EB", 
+            lineHeight: 1.7 
+          }}>
             <strong>🧩 Recommendation:</strong> {recommendation}
           </p>
         )}

@@ -3,10 +3,12 @@ import Layout from "../components/Layout";
 import LineChartBox from "../components/LineChartBox";
 import BarChartBox from "../components/BarChartBox";
 import axios from "axios";
+import { useMediaQuery } from "react-responsive";
 
 const AnalyticsPage = () => {
   const [analyticsData, setAnalyticsData] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -42,10 +44,18 @@ const AnalyticsPage = () => {
 
   return (
     <Layout>
-      <div style={{ padding: "30px" }}>
-        <h2 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px" }}>📈 Analytics</h2>
-        <LineChartBox data={analyticsData} title="Monthly Trends" />
-        <BarChartBox data={groupByMonthYear()} title="Monthly Metrics" />
+      <div style={{ padding: isMobile ? "15px" : "30px" }}>
+        <h2 style={{ 
+          fontSize: isMobile ? "24px" : "28px", 
+          fontWeight: "bold", 
+          marginBottom: "20px" 
+        }}>
+          📈 Analytics
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+          <LineChartBox data={analyticsData} title="Monthly Trends" />
+          <BarChartBox data={groupByMonthYear()} title="Monthly Metrics" />
+        </div>
       </div>
     </Layout>
   );

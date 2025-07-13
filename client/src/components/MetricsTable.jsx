@@ -1,10 +1,12 @@
 import { useState } from "react"
+import { useMediaQuery } from "react-responsive"
 
 export default function MetricsTable({ data }) {
   const [sortKey, setSortKey] = useState("date")
   const [asc, setAsc] = useState(false)
   const [page, setPage] = useState(1)
-  const pageSize = 5
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
+  const pageSize = isMobile ? 3 : 5
 
   const sorted = [...data].sort((a, b) => {
     const valA = a[sortKey]
@@ -29,13 +31,13 @@ export default function MetricsTable({ data }) {
     marginTop: "30px",
     background: "linear-gradient(145deg, #ffffff, #f8fafc)",
     borderRadius: "15px",
-    padding: "25px",
+    padding: isMobile ? "15px" : "25px",
     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
     border: "1px solid #e2e8f0",
   }
 
   const titleStyle = {
-    fontSize: "24px",
+    fontSize: isMobile ? "20px" : "24px",
     fontWeight: "bold",
     color: "#1f2937",
     marginBottom: "20px",
@@ -57,10 +59,10 @@ export default function MetricsTable({ data }) {
   }
 
   const headerCellStyle = {
-    padding: "15px 20px",
+    padding: isMobile ? "10px 12px" : "15px 20px",
     cursor: "pointer",
     fontWeight: "600",
-    fontSize: "14px",
+    fontSize: isMobile ? "12px" : "14px",
     textAlign: "left",
     borderBottom: "2px solid rgba(255, 255, 255, 0.1)",
     transition: "all 0.3s ease",
@@ -72,8 +74,8 @@ export default function MetricsTable({ data }) {
   }
 
   const cellStyle = {
-    padding: "15px 20px",
-    fontSize: "14px",
+    padding: isMobile ? "10px 12px" : "15px 20px",
+    fontSize: isMobile ? "12px" : "14px",
     color: "#374151",
   }
 
@@ -86,13 +88,13 @@ export default function MetricsTable({ data }) {
   }
 
   const pageButtonStyle = (isActive) => ({
-    padding: "8px 12px",
+    padding: isMobile ? "6px 10px" : "8px 12px",
     border: "2px solid #e2e8f0",
     borderRadius: "8px",
     background: isActive ? "linear-gradient(135deg, #3B82F6, #8B5CF6)" : "#ffffff",
     color: isActive ? "#ffffff" : "#374151",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: isMobile ? "12px" : "14px",
     fontWeight: "500",
     transition: "all 0.3s ease",
     minWidth: "40px",
@@ -101,14 +103,16 @@ export default function MetricsTable({ data }) {
 
   const statsStyle = {
     display: "flex",
+    flexDirection: isMobile ? "column" : "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: isMobile ? "flex-start" : "center",
     marginBottom: "20px",
     padding: "15px",
     background: "linear-gradient(135deg, #f8fafc, #e2e8f0)",
     borderRadius: "10px",
-    fontSize: "14px",
+    fontSize: isMobile ? "12px" : "14px",
     color: "#6b7280",
+    gap: isMobile ? "8px" : "0",
   }
 
   return (
@@ -179,7 +183,7 @@ export default function MetricsTable({ data }) {
                     style={{
                       fontWeight: "bold",
                       color: "#059669",
-                      fontSize: "16px",
+                      fontSize: isMobile ? "14px" : "16px",
                     }}
                   >
                     {m.value.toLocaleString()}
@@ -192,7 +196,7 @@ export default function MetricsTable({ data }) {
                       background: "linear-gradient(135deg, #dbeafe, #bfdbfe)",
                       color: "#1e40af",
                       borderRadius: "20px",
-                      fontSize: "12px",
+                      fontSize: isMobile ? "10px" : "12px",
                       fontWeight: "500",
                     }}
                   >

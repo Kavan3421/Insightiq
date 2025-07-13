@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const Sidebar = ({ collapsed, setCollapsed, theme }) => {
+const Sidebar = ({ collapsed, setCollapsed, theme, isMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeItem, setActiveItem] = useState("dashboard");
@@ -20,7 +20,7 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
   };
 
   const sidebarStyle = {
-    width: collapsed ? "80px" : "280px",
+    width: isMobile ? (collapsed ? "0" : "100%") : collapsed ? "80px" : "280px",
     height: "100vh",
     background:
       theme === "light"
@@ -29,12 +29,20 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     position: "fixed",
     left: 0,
     top: 0,
-    transition: "width 0.3s ease",
+    transition: "all 0.3s ease",
     boxShadow: "4px 0 20px rgba(0, 0, 0, 0.1)",
     borderRight: `1px solid ${theme === "light" ? "#e2e8f0" : "#374151"}`,
-    zIndex: 1000,
+    zIndex: 1001,
     display: "flex",
     flexDirection: "column",
+    overflow: "visible",
+    transform: isMobile
+      ? collapsed
+        ? "translateX(-100%)"
+        : "translateX(0)"
+      : "none",
+    opacity: isMobile ? (collapsed ? 0 : 1) : 1,
+    visibility: isMobile ? (collapsed ? "hidden" : "visible") : "visible",
   };
 
   const headerStyle = {
@@ -43,6 +51,7 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     display: "flex",
     alignItems: "center",
     gap: "15px",
+    minHeight: "80px",
   };
 
   const logoStyle = {
@@ -74,6 +83,7 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     margin: 0,
     opacity: collapsed ? 0 : 1,
     transition: "opacity 0.3s ease",
+    whiteSpace: "nowrap",
   };
 
   const menuStyle = {
@@ -82,6 +92,7 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     display: "flex",
     flexDirection: "column",
     gap: "8px",
+    overflowY: "auto",
   };
 
   const menuItemStyle = (isActive) => ({
@@ -135,6 +146,7 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     fontSize: "14px",
     boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
     transition: "all 0.3s ease",
+    zIndex: 1002,
   };
 
   const footerStyle = {
@@ -142,89 +154,117 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     borderTop: `1px solid ${theme === "light" ? "#e2e8f0" : "#374151"}`,
   };
 
+  const overlayStyle = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1000,
+    opacity: isMobile && !collapsed ? 1 : 0,
+    visibility: isMobile && !collapsed ? "visible" : "hidden",
+    transition: "all 0.3s ease",
+  };
+
   const menuItems = [
     { id: "dashboard", icon: "📊", label: "Dashboard", path: "/dashboard" },
-    { id: "analytics", icon: "📈", label: "Analytics", path: "/analytics" }, // ✅ fixed
-    { id: "reports", icon: "📋", label: "Reports", path: "/reports" }, // ✅ fixed
-    { id: "settings", icon: "⚙️", label: "Settings", path: "/settings" }, // ✅ fixed
+    { id: "analytics", icon: "📈", label: "Analytics", path: "/analytics" },
+    { id: "reports", icon: "📋", label: "Reports", path: "/reports" },
+    { id: "settings", icon: "⚙️", label: "Settings", path: "/settings" },
   ];
 
+  const handleOverlayClick = () => {
+    if (isMobile) {
+      setCollapsed(true);
+    }
+  };
+
   return (
-    <div style={sidebarStyle}>
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        style={toggleButtonStyle}
-        onMouseEnter={(e) => {
-          e.target.style.transform = "translateY(-50%) scale(1.1)";
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = "translateY(-50%) scale(1)";
-        }}
-      >
-        {collapsed ? "→" : "←"}
-      </button>
+    <>
+      {isMobile && <div style={overlayStyle} onClick={handleOverlayClick} />}
 
-      <div style={headerStyle}>
-        <div style={logoStyle}>
-          <img src="/images/InsightIQ(1).png" alt="Logo" style={imgStyle} />
-        </div>
-        {!collapsed && <h2 style={titleStyle}>InsightIQ</h2>}
-      </div>
-
-      <div style={menuStyle}>
-        {menuItems.map((item) => (
-          <Link
-            key={item.id}
-            to={item.path}
-            style={menuItemStyle(activeItem === item.id)}
-            onClick={() => setActiveItem(item.id)}
+      <div style={sidebarStyle}>
+        {!isMobile && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            style={toggleButtonStyle}
             onMouseEnter={(e) => {
-              if (activeItem !== item.id) {
-                e.target.style.background =
-                  theme === "light"
-                    ? "rgba(59, 130, 246, 0.1)"
-                    : "rgba(59, 130, 246, 0.2)";
-                e.target.style.transform = "translateX(5px)";
-              }
+              e.target.style.transform = "scale(1.1)";
             }}
             onMouseLeave={(e) => {
-              if (activeItem !== item.id) {
-                e.target.style.background = "transparent";
-                e.target.style.transform = "translateX(0)";
-              }
+              e.target.style.transform = "scale(1)";
             }}
           >
-            <span style={iconStyle}>{item.icon}</span>
-            <span style={textStyle}>{item.label}</span>
-          </Link>
-        ))}
-      </div>
+            {collapsed ? "→" : "←"}
+          </button>
+        )}
 
-      <div style={footerStyle}>
-        <button
-          onClick={handleLogout}
-          style={{
-            ...menuItemStyle(false),
-            width: "100%",
-            border: "none",
-            background: "linear-gradient(135deg, #ef4444, #dc2626)",
-            color: "white",
-            margin: 0,
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "translateY(-2px)";
-            e.target.style.boxShadow = "0 5px 15px rgba(239, 68, 68, 0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "translateY(0)";
-            e.target.style.boxShadow = "none";
-          }}
-        >
-          <span style={iconStyle}>🚪</span>
-          <span style={textStyle}>Logout</span>
-        </button>
+        <div style={headerStyle}>
+          <div style={logoStyle}>
+            <img src="/images/InsightIQ(1).png" alt="Logo" style={imgStyle} />
+          </div>
+          {!collapsed && <h2 style={titleStyle}>InsightIQ</h2>}
+        </div>
+
+        <div style={menuStyle}>
+          {menuItems.map((item) => (
+            <Link
+              key={item.id}
+              to={item.path}
+              style={menuItemStyle(activeItem === item.id)}
+              onClick={() => {
+                setActiveItem(item.id);
+                if (isMobile) setCollapsed(true);
+              }}
+              onMouseEnter={(e) => {
+                if (activeItem !== item.id) {
+                  e.target.style.background =
+                    theme === "light"
+                      ? "rgba(59, 130, 246, 0.1)"
+                      : "rgba(59, 130, 246, 0.2)";
+                  e.target.style.transform = "translateX(5px)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeItem !== item.id) {
+                  e.target.style.background = "transparent";
+                  e.target.style.transform = "translateX(0)";
+                }
+              }}
+            >
+              <span style={iconStyle}>{item.icon}</span>
+              <span style={textStyle}>{item.label}</span>
+            </Link>
+          ))}
+        </div>
+
+        <div style={footerStyle}>
+          <button
+            onClick={handleLogout}
+            style={{
+              ...menuItemStyle(false),
+              width: "100%",
+              border: "none",
+              background: "linear-gradient(135deg, #ef4444, #dc2626)",
+              color: "white",
+              margin: 0,
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "translateY(-2px)";
+              e.target.style.boxShadow = "0 5px 15px rgba(239, 68, 68, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "translateY(0)";
+              e.target.style.boxShadow = "none";
+            }}
+          >
+            <span style={iconStyle}>🚪</span>
+            <span style={textStyle}>Logout</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

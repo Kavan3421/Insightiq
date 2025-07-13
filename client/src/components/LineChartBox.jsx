@@ -11,17 +11,19 @@ import {
   Area,
   AreaChart,
 } from "recharts"
+import { useMediaQuery } from "react-responsive"
 
 export default function LineChartBox({ data, title = "Trend Analysis" }) {
   const [chartType, setChartType] = useState("line")
   const [showBrush, setShowBrush] = useState(false)
   const [selectedDataPoint, setSelectedDataPoint] = useState(null)
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' })
 
   const sortedData = [...data].sort((a, b) => new Date(a.name) - new Date(b.name))
 
   const boxStyle = {
     background: "linear-gradient(145deg, #ffffff, #f8fafc)",
-    padding: "25px",
+    padding: isMobile ? "15px" : "25px",
     borderRadius: "16px",
     boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
     border: "1px solid #e2e8f0",
@@ -31,13 +33,15 @@ export default function LineChartBox({ data, title = "Trend Analysis" }) {
 
   const headerStyle = {
     display: "flex",
+    flexDirection: isMobile ? "column" : "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: isMobile ? "flex-start" : "center",
     marginBottom: "20px",
+    gap: isMobile ? "10px" : "0",
   }
 
   const titleStyle = {
-    fontSize: "20px",
+    fontSize: isMobile ? "18px" : "20px",
     fontWeight: "bold",
     color: "#1f2937",
     margin: 0,
@@ -47,6 +51,7 @@ export default function LineChartBox({ data, title = "Trend Analysis" }) {
     display: "flex",
     gap: "10px",
     alignItems: "center",
+    flexWrap: "wrap",
   }
 
   const buttonStyle = {
@@ -55,7 +60,7 @@ export default function LineChartBox({ data, title = "Trend Analysis" }) {
     borderRadius: "8px",
     background: "white",
     cursor: "pointer",
-    fontSize: "12px",
+    fontSize: isMobile ? "12px" : "12px",
     fontWeight: "500",
     transition: "all 0.3s ease",
   }
@@ -78,14 +83,15 @@ export default function LineChartBox({ data, title = "Trend Analysis" }) {
             borderRadius: "12px",
             boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)",
             border: "1px solid #e2e8f0",
+            fontSize: isMobile ? "12px" : "14px",
           }}
         >
           <p style={{ fontWeight: "600", color: "#1f2937", margin: "0 0 8px 0" }}>📅 {label}</p>
-          <p style={{ color: "#3B82F6", margin: 0, fontSize: "14px" }}>
+          <p style={{ color: "#3B82F6", margin: 0 }}>
             📈 Value: <span style={{ fontWeight: "bold" }}>{payload[0].value}</span>
           </p>
           {payload[0].payload.category && (
-            <p style={{ color: "#6b7280", margin: "4px 0 0 0", fontSize: "12px" }}>
+            <p style={{ color: "#6b7280", margin: "4px 0 0 0" }}>
               Category: {payload[0].payload.category}
             </p>
           )}
@@ -130,7 +136,7 @@ export default function LineChartBox({ data, title = "Trend Analysis" }) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+          gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(120px, 1fr))",
           gap: "10px",
           marginBottom: "20px",
         }}
@@ -188,7 +194,7 @@ export default function LineChartBox({ data, title = "Trend Analysis" }) {
         </div>
       </div>
 
-      <div style={{ height: "350px" }}>
+      <div style={{ height: isMobile ? "250px" : "350px" }}>
         <ResponsiveContainer width="100%" height="100%">
           {chartType === "line" ? (
             <LineChart data={sortedData} onClick={handleDataPointClick}>

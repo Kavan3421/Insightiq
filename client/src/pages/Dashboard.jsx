@@ -3,9 +3,9 @@ import Layout from "../components/Layout";
 import BarChartBox from "../components/BarChartBox";
 import PieChartBox from "../components/PieChartBox";
 import LineChartBox from "../components/LineChartBox";
-import MetricsTable from "../components/MetricsTable";
 import exportPDF, { exportToCSV } from "../utils/exportCSV";
 import SummaryBlock from "../components/SummaryBlock";
+import { useMediaQuery } from "react-responsive";
 
 export default function Dashboard() {
   const [metrics, setMetrics] = useState([]);
@@ -16,8 +16,9 @@ export default function Dashboard() {
   const [editName, setEditName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  // const [summary, setSummary] = useState("");
+  const [msg, setMsg] = useState("");
   const dashboardRef = useRef();
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   const [form, setForm] = useState({
     name: "",
@@ -25,7 +26,6 @@ export default function Dashboard() {
     category: "",
     date: "",
   });
-  const [msg, setMsg] = useState("");
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
@@ -39,19 +39,8 @@ export default function Dashboard() {
     setCategories([...new Set(data.map((m) => m.category || "General"))]);
   };
 
-  // const fetchSummary = () => {
-  //   const token = localStorage.getItem("token");
-  //   fetch("http://localhost:5000/api/summary", {
-  //     headers: { Authorization: `Bearer ${token}` },
-  //   })
-  //     .then((res) => res.json())
-  //     .then((json) => setSummary(json.summary || "No summary generated"))
-  //     .catch((err) => console.error("Summary error:", err));
-  // };
-
   useEffect(() => {
     fetchData();
-    // fetchSummary();
   }, []);
 
   const handleChange = (e) =>
@@ -133,19 +122,19 @@ export default function Dashboard() {
     return Object.entries(grouped).map(([name, value]) => ({ name, value }));
   };
 
-  const groupByMonthYear = () => {
-    const grouped = {};
-    filtered.forEach((m) => {
-      const date = new Date(m.date);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-        2,
-        "0"
-      )}`;
-      grouped[key] = (grouped[key] || 0) + m.value;
-    });
+  // const groupByMonthYear = () => {
+  //   const grouped = {};
+  //   filtered.forEach((m) => {
+  //     const date = new Date(m.date);
+  //     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+  //       2,
+  //       "0"
+  //     )}`;
+  //     grouped[key] = (grouped[key] || 0) + m.value;
+  //   });
 
-    return Object.entries(grouped).map(([name, value]) => ({ name, value }));
-  };
+  //   return Object.entries(grouped).map(([name, value]) => ({ name, value }));
+  // };
 
   const cardStyle = {
     padding: "20px",
@@ -159,6 +148,7 @@ export default function Dashboard() {
 
   const formStyle = {
     display: "flex",
+    flexDirection: isMobile ? "column" : "row",
     gap: "15px",
     flexWrap: "wrap",
     marginBottom: "30px",
@@ -175,6 +165,7 @@ export default function Dashboard() {
     fontSize: "14px",
     outline: "none",
     transition: "all 0.3s ease",
+    width: isMobile ? "100%" : "auto",
   };
 
   const buttonStyle = {
@@ -187,13 +178,14 @@ export default function Dashboard() {
     fontSize: "14px",
     fontWeight: "600",
     transition: "all 0.3s ease",
+    width: isMobile ? "100%" : "auto",
   };
 
   return (
     <Layout>
       <h2
-        style={{
-          fontSize: "32px",
+        style={{ 
+          fontSize: isMobile ? "24px" : "32px",
           fontWeight: "bold",
           color: "#1f2937",
           marginBottom: "30px",
@@ -298,6 +290,7 @@ export default function Dashboard() {
               key={m._id}
               style={{
                 display: "flex",
+                flexDirection: isMobile ? "column" : "row",
                 alignItems: "center",
                 gap: "10px",
                 padding: "10px",
@@ -318,26 +311,28 @@ export default function Dashboard() {
                       margin: 0,
                     }}
                   />
-                  <button
-                    onClick={() => handleUpdate(m._id)}
-                    style={{
-                      ...buttonStyle,
-                      background: "linear-gradient(135deg, #10B981, #059669)",
-                      padding: "8px 15px",
-                    }}
-                  >
-                    💾 Save
-                  </button>
-                  <button
-                    onClick={() => setEditId(null)}
-                    style={{
-                      ...buttonStyle,
-                      background: "linear-gradient(135deg, #EF4444, #DC2626)",
-                      padding: "8px 15px",
-                    }}
-                  >
-                    ❌ Cancel
-                  </button>
+                  <div style={{ display: "flex", gap: "10px", width: isMobile ? "100%" : "auto" }}>
+                    <button
+                      onClick={() => handleUpdate(m._id)}
+                      style={{
+                        ...buttonStyle,
+                        background: "linear-gradient(135deg, #10B981, #059669)",
+                        padding: "8px 15px",
+                      }}
+                    >
+                      💾 Save
+                    </button>
+                    <button
+                      onClick={() => setEditId(null)}
+                      style={{
+                        ...buttonStyle,
+                        background: "linear-gradient(135deg, #EF4444, #DC2626)",
+                        padding: "8px 15px",
+                      }}
+                    >
+                      ❌ Cancel
+                    </button>
+                  </div>
                 </>
               ) : (
                 <>
@@ -363,6 +358,8 @@ export default function Dashboard() {
           ))}
         </ul>
       </div>
+
+      <SummaryBlock />
 
       {/* Filters */}
       <div
@@ -393,6 +390,7 @@ export default function Dashboard() {
         <div
           style={{
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             gap: "15px",
             alignItems: "center",
             flexWrap: "wrap",
@@ -426,7 +424,7 @@ export default function Dashboard() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+            gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "20px",
             marginBottom: "30px",
           }}
@@ -481,13 +479,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* <SummaryBlock /> */}
-
         {/* Charts */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(400px, 1fr))",
             gap: "30px",
             marginBottom: "30px",
           }}
@@ -506,29 +502,13 @@ export default function Dashboard() {
               value: m.value,
             }))}
           />
-          <BarChartBox data={groupByMonthYear()} title="Monthly Metrics" />
+          {/* <BarChartBox data={groupByMonthYear()} title="Monthly Metrics" /> */}
         </div>
-
-        {/* <MetricsTable data={filtered} /> */}
-        {/* Summary */}
-        {/* {summary && (
-          <div
-            style={{
-              marginTop: "30px",
-              padding: "15px",
-              border: "1px solid #ccc",
-              borderRadius: "10px",
-              background: "#f8f8f8",
-            }}
-          >
-            <h3>🧠 AI Insight Summary</h3>
-            <p>{summary}</p>
-          </div>
-        )} */}
       </div>
       <div
         style={{
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           gap: "20px",
           justifyContent: "center",
           marginTop: "30px",
