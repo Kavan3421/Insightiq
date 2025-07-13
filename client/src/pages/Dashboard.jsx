@@ -9,7 +9,6 @@ import exportPDF, { exportToCSV } from "../utils/exportCSV";
 export default function Dashboard() {
   const [metrics, setMetrics] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  // const [summary, setSummary] = useState("");
   const [categories, setCategories] = useState([]);
   const [filterCategory, setFilterCategory] = useState("All");
   const [editId, setEditId] = useState(null);
