@@ -49,14 +49,22 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
     width: "45px",
     height: "45px",
     background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-    borderRadius: "12px",
+    borderRadius: "25%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     color: "white",
     fontWeight: "bold",
     fontSize: "18px",
+    overflow: "hidden",
     flexShrink: 0,
+  };
+
+  const imgStyle = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    borderRadius: "25%",
   };
 
   const titleStyle = {
@@ -157,7 +165,9 @@ const Sidebar = ({ collapsed, setCollapsed, theme }) => {
       </button>
 
       <div style={headerStyle}>
-        <div style={logoStyle}>IQ</div>
+        <div style={logoStyle}>
+          <img src="/images/InsightIQ(1).png" alt="Logo" style={imgStyle} />
+        </div>
         {!collapsed && <h2 style={titleStyle}>InsightIQ</h2>}
       </div>
 

@@ -64,6 +64,7 @@ export default function SummaryBlock() {
       <div
         style={{
           marginTop: "30px",
+          marginBottom: "30px",
           padding: "25px",
           borderRadius: "12px",
           background: "linear-gradient(145deg, #ffffff, #f8fafc)",
