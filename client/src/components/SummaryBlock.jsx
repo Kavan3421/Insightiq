@@ -9,7 +9,7 @@ export default function SummaryBlock() {
   useEffect(() => {
     const fetchSummary = async () => {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/summary", {
+      const res = await fetch("https://insightiq-earu.onrender.com/api/summary", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

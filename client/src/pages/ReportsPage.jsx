@@ -14,7 +14,7 @@ const ReportsPage = () => {
     const fetchMetrics = async () => {
       const token = localStorage.getItem("token");
       try {
-        const res = await axios.get("http://localhost:5000/api/dashboard", {
+        const res = await axios.get("https://insightiq-earu.onrender.com/api/dashboard", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = res.data.metrics || [];
