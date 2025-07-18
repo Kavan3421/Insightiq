@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
-  'https://insightiq-earu.onrender.com', 
+  'https://iqinsight.netlify.app', 
   'http://localhost:5173',       
   'http://localhost:3000'          
 ];
