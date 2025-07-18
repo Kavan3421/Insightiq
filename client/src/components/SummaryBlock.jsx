@@ -11,7 +11,7 @@ export default function SummaryBlock() {
         setLoading(true);
         setError(null);
         const token = localStorage.getItem("token");
-        const res = await fetch("https://api/summary", {
+        const res = await fetch("https://insightiq-earu.onrender.com/api/summary", { // This line is changed
           headers: { Authorization: `Bearer ${token}` },
         });
 
