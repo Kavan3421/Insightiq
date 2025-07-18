@@ -11,7 +11,7 @@ export default function SummaryBlock() {
         setLoading(true);
         setError(null);
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/summary", {
+        const res = await fetch("https://api/summary", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

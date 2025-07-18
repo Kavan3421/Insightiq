@@ -29,7 +29,7 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5000/api/dashboard", {
+    const res = await fetch("https://insightiq-earu.onrender.com/api/dashboard", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const json = await res.json();
@@ -49,7 +49,7 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:5000/api/metrics", {
+    const res = await fetch("https://insightiq-earu.onrender.com/api/metrics", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export default function Dashboard() {
   const handleUpdate = async (id) => {
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:5000/api/metrics/${id}`, {
+    const res = await fetch(`https://insightiq-earu.onrender.com/api/metrics/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
