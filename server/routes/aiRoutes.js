@@ -3,10 +3,14 @@ import Metric from "../models/Metric.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import axios from "axios";
+import NodeCache from "node-cache"; // 1. IMPORT NodeCache
 
 dotenv.config();
 
 const router = express.Router();
+
+// 2. INITIALIZE the cache with a 10-minute (600 seconds) time-to-live
+const summaryCache = new NodeCache({ stdTTL: 600 });
 
 // Helper function to calculate statistics
 const getStats = (values) => {
@@ -99,10 +103,20 @@ Do not include any introductory phrases. Output only the raw JSON object.
 `;
 }
 
-// The main route handler, now without caching
+// The main route handler, now WITH caching
 router.get("/summary", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
+    const cacheKey = `summary_${userId}`; // Define a unique key for each user's cache
+
+    // 3. CHECK the cache first
+    const cachedSummary = summaryCache.get(cacheKey);
+    if (cachedSummary) {
+      console.log("✅ Returning cached summary for user:", userId);
+      return res.json({ summary: cachedSummary });
+    }
+
+    console.log("🔄 No cache found. Generating new summary for user:", userId);
     const metrics = await Metric.find({ user: userId });
 
     if (!metrics.length) {
@@ -140,6 +154,9 @@ router.get("/summary", authMiddleware, async (req, res) => {
         return res.status(500).json({ error: "The AI returned an invalid format." });
     }
     
+    // 4. SET the new summary in the cache before sending the response
+    summaryCache.set(cacheKey, summaryObject);
+
     res.json({ summary: summaryObject });
   } catch (err) {
     console.error("❌ ERROR IN /summary ROUTE:", err.response?.data || err.message);
