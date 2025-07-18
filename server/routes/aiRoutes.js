@@ -3,37 +3,41 @@ import Metric from "../models/Metric.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import axios from "axios";
+import NodeCache from "node-cache";
+
 dotenv.config();
 
 const router = express.Router();
 
-router.get("/summary", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.userId;
-    const metrics = await Metric.find({ userId });
+const summaryCache = new NodeCache({ stdTTL: 600 });
 
-    if (!metrics.length) {
-      return res.status(404).json({ message: "No metrics found" });
-    }
+const getStats = (values) => {
+  if (!values || values.length === 0) {
+    return { total: 0, avg: 0, min: 0, max: 0, std: 0 };
+  }
+  const total = values.reduce((a, b) => a + b, 0);
+  const avg = total / values.length;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const std = Math.sqrt(
+    values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) /
+      values.length
+  );
+  return {
+    total: total.toFixed(2),
+    avg: avg.toFixed(2),
+    min: min.toFixed(2),
+    max: max.toFixed(2),
+    std: std.toFixed(2),
+  };
+};
 
-    // Group metrics by category
+const constructPrompt = (metrics) => {
     const grouped = {};
     metrics.forEach(({ category = "General", value }) => {
       if (!grouped[category]) grouped[category] = [];
       grouped[category].push(value);
     });
-
-    const getStats = (values) => {
-      const total = values.reduce((a, b) => a + b, 0);
-      const avg = (total / values.length).toFixed(2);
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const std = Math.sqrt(
-        values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) /
-          values.length
-      ).toFixed(2);
-      return { total, avg, min, max, std };
-    };
 
     const categorySummaries = Object.entries(grouped).map(
       ([category, values]) => {
@@ -42,42 +46,89 @@ router.get("/summary", authMiddleware, async (req, res) => {
       }
     );
 
-    // Top 3 and bottom 3 metrics
     const sorted = [...metrics].sort((a, b) => b.value - a.value);
     const top = sorted.slice(0, 3).map((m) => `${m.name} (${m.value})`);
     const bottom = sorted.slice(-3).map((m) => `${m.name} (${m.value})`);
 
-    // Construct prompt
-    const prompt = `
+    return `
 You are a senior data analyst at a SaaS analytics platform. Here is the metric data for a client dashboard:
 
-🧠 Metric Distribution by Category:
+- Metric Distribution by Category:
 ${categorySummaries.join("\n")}
 
-📈 Top 3 Performing Metrics:
+- Top 3 Performing Metrics:
 ${top.join(", ")}
 
-📉 Bottom 3 Performing Metrics:
+- Bottom 3 Performing Metrics:
 ${bottom.join(", ")}
 
-Your task:
-1. Identify key trends (growth/decline) in the metrics.
-2. Highlight which categories are performing best and which are lagging.
-3. Suggest 1–2 strategic actions the user can take.
-4. Write it in a business-professional tone in 4–6 sentences.
+Your task is to provide a detailed, business-professional analysis in JSON format. The JSON object should have the following structure:
+{
+  "executiveSummary": "A 2-3 sentence overview of the key findings.",
+  "performanceHighlights": {
+    "topCategory": {
+      "name": "Category Name",
+      "insight": "A brief insight into why this category is performing well, referencing its average score."
+    },
+    "bottomCategory": {
+      "name": "Category Name",
+      "insight": "A brief insight into why this category is underperforming, referencing its average score."
+    }
+  },
+  "keyTrends": [
+    "A bullet point identifying a significant trend, like a performance gap or high variance.",
+    "Another bullet point for another trend."
+  ],
+  "actionableRecommendations": [
+    {
+      "title": "A short, actionable title for the recommendation.",
+      "description": "A 1-2 sentence description of the recommended action, tied directly to the data."
+    },
+    {
+      "title": "Another recommendation title.",
+      "description": "Another recommendation description."
+    }
+  ]
+}
 
-Start with a summary statement, followed by analysis and recommendations.
+- Analyze the provided statistics (Avg, Std Dev) to inform your insights.
+- For 'performanceHighlights', identify the categories with the highest and lowest average values.
+- For 'keyTrends', look for significant variances, performance gaps, or concentrations of high/low metrics.
+- For 'actionableRecommendations', suggest concrete steps the user can take based on the data.
+
+Do not include any introductory phrases. Output only the raw JSON object.
 `;
+}
+
+router.get("/summary", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const cacheKey = `summary_${userId}`;
+
+    const cachedSummary = summaryCache.get(cacheKey);
+    if (cachedSummary) {
+      console.log("Returning cached summary for user:", userId);
+      return res.json({ summary: cachedSummary });
+    }
+
+    const metrics = await Metric.find({ user: userId });
+
+    if (!metrics.length) {
+      return res.status(200).json({ summary: { executiveSummary: "No metrics found. Add some data to generate a summary." } });
+    }
+
+    const prompt = constructPrompt(metrics);
 
     const response = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         model: "llama3-70b-8192",
         messages: [
-          { role: "system", content: "You are a senior analytics consultant." },
+          { role: "system", content: "You are a helpful analytics assistant that responds in JSON." },
           { role: "user", content: prompt },
         ],
         temperature: 0.5,
+        response_format: { type: "json_object" }, // Request JSON output
       },
       {
         headers: {
@@ -86,9 +137,12 @@ Start with a summary statement, followed by analysis and recommendations.
         },
       }
     );
+    
+    const summaryObject = JSON.parse(response.data.choices[0].message.content);
+    
+    summaryCache.set(cacheKey, summaryObject);
 
-    const summary = response.data.choices[0].message.content;
-    res.json({ summary });
+    res.json({ summary: summaryObject });
   } catch (err) {
     console.error("Groq API error:", err.response?.data || err.message);
     res.status(500).json({ error: "Failed to generate advanced summary" });
