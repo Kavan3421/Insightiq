@@ -11,6 +11,7 @@ const router = express.Router();
 
 const summaryCache = new NodeCache({ stdTTL: 600 });
 
+// (Keep the getStats and constructPrompt functions as they were)
 const getStats = (values) => {
   if (!values || values.length === 0) {
     return { total: 0, avg: 0, min: 0, max: 0, std: 0 };
@@ -100,6 +101,7 @@ Do not include any introductory phrases. Output only the raw JSON object.
 `;
 }
 
+
 router.get("/summary", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
@@ -128,7 +130,7 @@ router.get("/summary", authMiddleware, async (req, res) => {
           { role: "user", content: prompt },
         ],
         temperature: 0.5,
-        response_format: { type: "json_object" }, // Request JSON output
+        response_format: { type: "json_object" },
       },
       {
         headers: {
@@ -138,14 +140,23 @@ router.get("/summary", authMiddleware, async (req, res) => {
       }
     );
     
-    const summaryObject = JSON.parse(response.data.choices[0].message.content);
+    let summaryObject;
+    try {
+        const rawContent = response.data.choices[0].message.content;
+        summaryObject = JSON.parse(rawContent);
+    } catch (parseError) {
+        // This is the most important part for debugging.
+        console.error("🔴 FAILED TO PARSE JSON FROM GROQ API");
+        console.error("RAW AI RESPONSE:", response.data.choices[0].message.content);
+        return res.status(500).json({ error: "The AI returned an invalid format." });
+    }
     
     summaryCache.set(cacheKey, summaryObject);
 
     res.json({ summary: summaryObject });
   } catch (err) {
-    console.error("Groq API error:", err.response?.data || err.message);
-    res.status(500).json({ error: "Failed to generate advanced summary" });
+    console.error("❌ ERROR IN /summary ROUTE:", err.response?.data || err.message);
+    res.status(500).json({ error: "Failed to communicate with AI service or database." });
   }
 });
 
