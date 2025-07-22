@@ -17,6 +17,9 @@ const AnalyticsPage = () => {
         const res = await axios.get("https://insightiq-earu.onrender.com/api/dashboard", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // const res = await axios.get("http://localhost:5000/api/dashboard", {
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
         const data = res.data.metrics || [];
         setFiltered(data);
         setAnalyticsData(data);

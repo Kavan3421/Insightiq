@@ -112,11 +112,9 @@ router.get("/summary", authMiddleware, async (req, res) => {
     // 3. CHECK the cache first
     const cachedSummary = summaryCache.get(cacheKey);
     if (cachedSummary) {
-      console.log("✅ Returning cached summary for user:", userId);
       return res.json({ summary: cachedSummary });
     }
 
-    console.log("🔄 No cache found. Generating new summary for user:", userId);
     const metrics = await Metric.find({ user: userId });
 
     if (!metrics.length) {

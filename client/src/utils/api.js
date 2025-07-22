@@ -1,4 +1,5 @@
 const API_BASE = "https://insightiq-earu.onrender.com/api";
+// const API_BASE = "http://localhost:5000/api";
 
 export const registerUser = async (userData) => {
   try {
@@ -9,6 +10,13 @@ export const registerUser = async (userData) => {
       },
       body: JSON.stringify(userData),
     });
+    // const res = await fetch("http://localhost:5000/api/auth/register", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(userData),
+    // });
 
     const data = await res.json();
 

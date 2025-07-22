@@ -6,19 +6,18 @@ import LineChartBox from "../components/LineChartBox";
 import exportPDF, { exportToCSV } from "../utils/exportCSV";
 import SummaryBlock from "../components/SummaryBlock";
 import { useMediaQuery } from "react-responsive";
+import EditSection from "../components/EditSection";
 
 export default function Dashboard() {
   const [metrics, setMetrics] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filterCategory, setFilterCategory] = useState("All");
-  const [editId, setEditId] = useState(null);
-  const [editName, setEditName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [msg, setMsg] = useState("");
   const dashboardRef = useRef();
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
   const [form, setForm] = useState({
     name: "",
@@ -32,6 +31,9 @@ export default function Dashboard() {
     const res = await fetch("https://insightiq-earu.onrender.com/api/dashboard", {
       headers: { Authorization: `Bearer ${token}` },
     });
+    // const res = await fetch("http://localhost:5000/api/dashboard", {
+    //   headers: { Authorization: `Bearer ${token}` },
+    // });
     const json = await res.json();
     const data = json.metrics || [];
     setMetrics(data);
@@ -57,6 +59,14 @@ export default function Dashboard() {
       },
       body: JSON.stringify(form),
     });
+    // const res = await fetch("http://localhost:5000/api/metrics", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   body: JSON.stringify(form),
+    // });
     const json = await res.json();
     if (json.metric) {
       setMsg("✅ Metric added!");
@@ -85,29 +95,6 @@ export default function Dashboard() {
     }
 
     setFiltered(result);
-  };
-
-  const handleUpdate = async (id) => {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(`https://insightiq-earu.onrender.com/api/metrics/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name: editName }),
-    });
-
-    const json = await res.json();
-
-    if (json.metric) {
-      setEditId(null);
-      setEditName("");
-      fetchData();
-    } else {
-      alert(json.message || "Update failed");
-    }
   };
 
   const total = filtered.reduce((acc, curr) => acc + curr.value, 0);
@@ -184,7 +171,7 @@ export default function Dashboard() {
   return (
     <Layout>
       <h2
-        style={{ 
+        style={{
           fontSize: isMobile ? "24px" : "32px",
           fontWeight: "bold",
           color: "#1f2937",
@@ -272,93 +259,13 @@ export default function Dashboard() {
       )}
 
       {/* Edit Section */}
-      <div
-        style={{
-          background: "linear-gradient(145deg, #ffffff, #f8fafc)",
-          padding: "25px",
-          borderRadius: "15px",
-          marginBottom: "30px",
-          boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h3 style={{ color: "#1f2937", marginBottom: "20px" }}>
-          ✏️ Edit Metric Names
-        </h3>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {metrics.map((m) => (
-            <li
-              key={m._id}
-              style={{
-                display: "flex",
-                flexDirection: isMobile ? "column" : "row",
-                alignItems: "center",
-                gap: "10px",
-                padding: "10px",
-                marginBottom: "10px",
-                background: "#f9fafb",
-                borderRadius: "8px",
-              }}
-            >
-              {editId === m._id ? (
-                <>
-                  <input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    placeholder="New name"
-                    style={{
-                      ...inputStyle,
-                      flex: 1,
-                      margin: 0,
-                    }}
-                  />
-                  <div style={{ display: "flex", gap: "10px", width: isMobile ? "100%" : "auto" }}>
-                    <button
-                      onClick={() => handleUpdate(m._id)}
-                      style={{
-                        ...buttonStyle,
-                        background: "linear-gradient(135deg, #10B981, #059669)",
-                        padding: "8px 15px",
-                      }}
-                    >
-                      💾 Save
-                    </button>
-                    <button
-                      onClick={() => setEditId(null)}
-                      style={{
-                        ...buttonStyle,
-                        background: "linear-gradient(135deg, #EF4444, #DC2626)",
-                        padding: "8px 15px",
-                      }}
-                    >
-                      ❌ Cancel
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <span style={{ flex: 1, fontWeight: "500" }}>
-                    {m.name} – {m.value}
-                  </span>
-                  <button
-                    onClick={() => {
-                      setEditId(m._id);
-                      setEditName(m.name);
-                    }}
-                    style={{
-                      ...buttonStyle,
-                      background: "linear-gradient(135deg, #F59E0B, #D97706)",
-                      padding: "8px 15px",
-                    }}
-                  >
-                    ✏️ Edit
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <EditSection
+        metrics={metrics}
+        fetchData={fetchData}
+        isMobile={isMobile}
+      />
 
+      {/* Summary Block */}
       <SummaryBlock />
 
       {/* Filters */}
@@ -424,7 +331,9 @@ export default function Dashboard() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(250px, 1fr))",
+            gridTemplateColumns: isMobile
+              ? "1fr 1fr"
+              : "repeat(auto-fit, minmax(250px, 1fr))",
             gap: "20px",
             marginBottom: "30px",
           }}
@@ -483,7 +392,9 @@ export default function Dashboard() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(400px, 1fr))",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : "repeat(auto-fit, minmax(400px, 1fr))",
             gap: "30px",
             marginBottom: "30px",
           }}

@@ -47,10 +47,10 @@ router.post("/metrics", authMiddleware, async (req, res) => {
 // Update metric name
 router.put("/metrics/:id", authMiddleware, async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, value } = req.body;
     const metric = await Metric.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
-      { name },
+      { name, value },
       { new: true }
     );
 
@@ -62,6 +62,7 @@ router.put("/metrics/:id", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Failed to update metric" });
   }
 });
+
 
 
 // (Optional) Add sample data
@@ -80,3 +81,21 @@ router.post("/add-metrics", authMiddleware, async (req, res) => {
 });
 
 export default router;
+
+// DELETE /api/metrics/:id
+router.delete("/metrics/:id", authMiddleware, async (req, res) => {
+  try {
+    const deleted = await Metric.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id,
+    });
+
+    if (!deleted)
+      return res.status(404).json({ message: "Metric not found" });
+
+    res.json({ message: "Metric deleted" });
+  } catch (err) {
+    console.error("Delete Error:", err);
+    res.status(500).json({ message: "Failed to delete metric" });
+  }
+});

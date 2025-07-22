@@ -14,6 +14,9 @@ export default function SummaryBlock() {
         const res = await fetch("https://insightiq-earu.onrender.com/api/summary", { // This line is changed
           headers: { Authorization: `Bearer ${token}` },
         });
+        // const res = await fetch("http://localhost:5000/api/summary", { // This line is changed
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
 
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
