@@ -7,7 +7,7 @@ const EditSection = ({ metrics, fetchData, isMobile }) => {
 
   const handleUpdate = async (id) => {
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/api/metrics/${id}`, {
+    const res = await fetch(`https://insightiq-earu.onrender.com/api/metrics/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -15,6 +15,14 @@ const EditSection = ({ metrics, fetchData, isMobile }) => {
       },
       body: JSON.stringify({ name: editName, value: editValue }),
     });
+    // const res = await fetch(`http://localhost:5000/api/metrics/${id}`, {
+    //   method: "PUT",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   body: JSON.stringify({ name: editName, value: editValue }),
+    // });
 
     const json = await res.json();
     if (json.metric) {
@@ -31,12 +39,18 @@ const EditSection = ({ metrics, fetchData, isMobile }) => {
     if (!window.confirm("Are you sure you want to delete this metric?")) return;
 
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/api/metrics/${id}`, {
+    const res = await fetch(`https://insightiq-earu.onrender.com/api/metrics/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    // const res = await fetch(`http://localhost:5000/api/metrics/${id}`, {
+    //   method: "DELETE",
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    // });
 
     const json = await res.json();
     if (json.message === "Metric deleted") {
