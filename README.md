@@ -25,6 +25,8 @@ InsightIQ is a comprehensive and professional analytics dashboard built with Rea
 | Recharts        | Express.js     | Mongoose     |
 | CSS Modules     | JWT Auth       |              |
 
+
+
 ---
 
 ## 🔧 Installation
@@ -34,6 +36,7 @@ InsightIQ is a comprehensive and professional analytics dashboard built with Rea
 git clone https://github.com/yourusername/insightiq.git
 cd insightiq
 
+```
 ---
 
 ## 👤 Created By
