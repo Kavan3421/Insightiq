@@ -33,3 +33,11 @@ InsightIQ is a comprehensive and professional analytics dashboard built with Rea
 ```bash
 git clone https://github.com/yourusername/insightiq.git
 cd insightiq
+
+---
+
+## 👤 Created By
+
+**Kavan Patel**  
+🔗 [LinkedIn](https://www.linkedin.com/in/kavan-patel-763319251/)  
+🌐 [Portfolio](https://kavanpatel.me)
